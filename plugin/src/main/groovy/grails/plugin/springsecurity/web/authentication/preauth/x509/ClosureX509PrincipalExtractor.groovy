@@ -15,6 +15,7 @@
 package grails.plugin.springsecurity.web.authentication.preauth.x509
 
 import groovy.util.logging.Slf4j
+import org.springframework.context.MessageSourceAware
 
 import java.security.cert.X509Certificate
 
@@ -33,7 +34,7 @@ import groovy.transform.CompileStatic
  */
 @Slf4j
 @CompileStatic
-class ClosureX509PrincipalExtractor implements X509PrincipalExtractor {
+class ClosureX509PrincipalExtractor implements X509PrincipalExtractor, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.accessor
 
@@ -47,8 +48,10 @@ class ClosureX509PrincipalExtractor implements X509PrincipalExtractor {
 
 		def username = closure.call(subjectDN)
 		if (username == null) {
-			throw new BadCredentialsException(messages.getMessage('SubjectDnX509PrincipalExtractor.noMatching',
-					[subjectDN] as Object[], 'No matching pattern was found in subject DN: {}'))
+			final String code = 'SubjectDnX509PrincipalExtractor.noMatching'
+			final String defaultMessage = 'No matching pattern was found in subject DN: {}'
+			Object[] args = [subjectDN] as Object[]
+			throw new BadCredentialsException(messages.getMessage(code, args, defaultMessage))
 		}
 
 		log.debug "Extracted Principal name is '{}'", username
@@ -60,6 +63,7 @@ class ClosureX509PrincipalExtractor implements X509PrincipalExtractor {
 	 * Dependency injection for the message source.
 	 * @param messageSource the message source
 	 */
+	@Override
 	void setMessageSource(MessageSource messageSource) {
 		messages = new MessageSourceAccessor(messageSource)
 	}

@@ -133,7 +133,7 @@ class ReflectionUtils {
 	static List<InterceptedUrl> splitMap(List<Map<String, Object>> map) {
 		map.collect { Map<String, Object> row ->
 
-			List tokens
+			List<String> tokens
 			def value = row.access
 			if (value instanceof Collection || value.getClass().array) {
 				tokens = value*.toString()
@@ -142,12 +142,12 @@ class ReflectionUtils {
 				tokens = [value.toString()]
 			}
 
-			def httpMethod = row.httpMethod
+			def httpMethod = row.httpMethod ?: null
 			if (httpMethod instanceof CharSequence) {
 				httpMethod = HttpMethod.valueOf(httpMethod)
 			}
 
-			new InterceptedUrl(row.pattern, tokens, httpMethod)
+			new InterceptedUrl(row.pattern as String, tokens, httpMethod as HttpMethod)
 		}
 	}
 
@@ -210,7 +210,7 @@ class ReflectionUtils {
 
 	static SortedMap<Integer, String> findFilterChainNames(ConfigObject conf) {
 		SpringSecurityUtils.findFilterChainNames conf.filterChain.filterNames,
-				conf.secureChannel.definition as boolean, conf.ipRestrictions as boolean, conf.useX509,
-				conf.useDigestAuth, conf.useBasicAuth, conf.useSwitchUserFilter
+				conf.secureChannel.definition as boolean, conf.ipRestrictions as boolean, conf.useX509 as boolean,
+				conf.useDigestAuth as boolean, conf.useBasicAuth as boolean, conf.useSwitchUserFilter as boolean
 	}
 }
